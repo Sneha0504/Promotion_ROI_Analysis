@@ -1,0 +1,39 @@
+{
+  "config": {
+    "reliable_flag_start": "2014-04-01",
+    "pre_days": 90,
+    "post_days": 28,
+    "min_promo_days": 3,
+    "max_promo_days": 60,
+    "min_pre_nonzero_frac": 0.5,
+    "promo_flag_gap_tolerance": 1,
+    "max_events": 300
+  },
+  "funnel": {
+    "raw_events": 3455720,
+    "after_length": 427674,
+    "after_history": 405849,
+    "after_nonzero": 405849,
+    "after_clean_window": 46728,
+    "after_store_open": 42807,
+    "final": 300
+  },
+  "n_candidate_series": 139364,
+  "n_promoted_rows": 7810622,
+  "flickering_events": 286616,
+  "short_history_series": 9958,
+  "profile": {
+    "n_rows": 125497040,
+    "first_date": "2013-01-01 00:00:00",
+    "last_date": "2017-08-15 00:00:00",
+    "n_null_sales": 0,
+    "n_negative_sales": 7795,
+    "n_zero_sales": 0,
+    "n_null_promo": 21657651,
+    "n_promo_true": 7810622,
+    "n_promo_false": 96028767,
+    "first_nonnull_promo_date": "2014-04-01 00:00:00",
+    "n_stores": 54,
+    "n_items": 4036
+  }
+}

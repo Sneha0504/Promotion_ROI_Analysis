@@ -1,0 +1,226 @@
+{
+  "assumptions": {
+    "assumed_price": 1.0,
+    "discount_depth": 0.2,
+    "gross_margin": 0.3,
+    "note": "Favorita has no price/margin data; price/discount/margin are MODELED assumptions. Results read in margin-units at assumed_price=1.0."
+  },
+  "ci_note": "Effect CIs are Unit-2 PERCENTILE bootstrap intervals; the net-effect CI sums the chosen method's promo + post bounds (conservative/widest).",
+  "inconclusive_basis": "net_profit",
+  "overall_split": {
+    "counts": {
+      "net positive": 8,
+      "net negative": 210,
+      "inconclusive": 82
+    },
+    "pct": {
+      "net positive": 2.7,
+      "net negative": 70.0,
+      "inconclusive": 27.3
+    },
+    "total": 300
+  },
+  "overall_split_excl_low_confidence": {
+    "counts": {
+      "net positive": 8,
+      "net negative": 210,
+      "inconclusive": 50
+    },
+    "pct": {
+      "net positive": 3.0,
+      "net negative": 78.4,
+      "inconclusive": 18.7
+    },
+    "total": 268
+  },
+  "chosen_method_counts": {
+    "SC": 261,
+    "ITS": 39
+  },
+  "median_net_profit_impact": -398.79304489148376,
+  "mean_net_profit_impact": -764.9068027424149,
+  "mean_net_profit_impact_excl_low_confidence": -463.6250657891499,
+  "n_low_confidence": 32,
+  "n_post_near_zero": 11,
+  "naive_win_but_net_negative": 151,
+  "naive_wins": 211,
+  "sc_low_credibility_downgrade": {
+    "n_sc_low_credibility": 163,
+    "n_labels_changed": 142,
+    "overall_split": {
+      "counts": {
+        "net positive": 8,
+        "net negative": 68,
+        "inconclusive": 224
+      },
+      "pct": {
+        "net positive": 2.7,
+        "net negative": 22.7,
+        "inconclusive": 74.7
+      },
+      "total": 300
+    },
+    "note": "Downgrades SC-chosen events whose promo lift is not separable from donor placebo noise (sc_low_credibility) to inconclusive. Reported as a stress test; the headline overall_split does NOT apply this downgrade."
+  },
+  "credibility_tiers": {
+    "net negative": {
+      "total": 210,
+      "high_confidence": 68,
+      "lower_confidence": 142
+    },
+    "net positive": {
+      "total": 8,
+      "high_confidence": 8,
+      "lower_confidence": 0
+    },
+    "note": "high_confidence = primary label held AND the chosen estimate is credible (chosen SC with sc_low_credibility == False, or chosen ITS with poor_fit == False); lower_confidence otherwise. Primary labels are unchanged; this is a reported stratification only."
+  },
+  "n_sc_low_credibility_all": 195,
+  "placebo_robustness": {
+    "n_lower_conf_net_negative": 142,
+    "survive_p90": 140,
+    "survive_max": 109,
+    "note": "Among lower-confidence net-negative events, how many stay net negative after adding the 90th-percentile / maximum placebo net effect (optimistic direction) to their net incremental units. Placebo net effects come from the in-space placebo donors (synthetic_control.py)."
+  },
+  "break_even": {
+    "median_break_even_discount_positive_lift": 0.0746,
+    "median_break_even_margin_positive_lift": 0.8042,
+    "n_never_break_even": 127,
+    "alt_discount_depth": 0.1,
+    "alt_gross_margin": 0.4,
+    "n_flip_positive_at_alt_discount": 43,
+    "n_flip_positive_at_alt_margin": 18,
+    "note": "break_even_discount = gross_margin x net_incremental_units / promo_units_sold; break_even_margin = discount_depth x promo_units_sold / net_incremental_units. Flip counts use point estimates: currently non-positive promotions that would turn net positive at the alt discount/margin."
+  },
+  "sensitivity": {
+    "discount_depths": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "gross_margins": [
+      0.2,
+      0.3,
+      0.4
+    ],
+    "cells": [
+      {
+        "discount_depth": 0.1,
+        "gross_margin": 0.2,
+        "median_net_profit_impact": -185.74,
+        "pct_positive": 4.0,
+        "pct_negative": 59.7,
+        "pct_inconclusive": 36.3,
+        "counts": {
+          "net positive": 12,
+          "net negative": 179,
+          "inconclusive": 109
+        }
+      },
+      {
+        "discount_depth": 0.1,
+        "gross_margin": 0.3,
+        "median_net_profit_impact": -157.12,
+        "pct_positive": 9.0,
+        "pct_negative": 44.7,
+        "pct_inconclusive": 46.3,
+        "counts": {
+          "net positive": 27,
+          "net negative": 134,
+          "inconclusive": 139
+        }
+      },
+      {
+        "discount_depth": 0.1,
+        "gross_margin": 0.4,
+        "median_net_profit_impact": -132.63,
+        "pct_positive": 12.3,
+        "pct_negative": 34.0,
+        "pct_inconclusive": 53.7,
+        "counts": {
+          "net positive": 37,
+          "net negative": 102,
+          "inconclusive": 161
+        }
+      },
+      {
+        "discount_depth": 0.2,
+        "gross_margin": 0.2,
+        "median_net_profit_impact": -431.77,
+        "pct_positive": 0.0,
+        "pct_negative": 81.7,
+        "pct_inconclusive": 18.3,
+        "counts": {
+          "net positive": 0,
+          "net negative": 245,
+          "inconclusive": 55
+        }
+      },
+      {
+        "discount_depth": 0.2,
+        "gross_margin": 0.3,
+        "median_net_profit_impact": -398.79,
+        "pct_positive": 2.7,
+        "pct_negative": 70.0,
+        "pct_inconclusive": 27.3,
+        "counts": {
+          "net positive": 8,
+          "net negative": 210,
+          "inconclusive": 82
+        }
+      },
+      {
+        "discount_depth": 0.2,
+        "gross_margin": 0.4,
+        "median_net_profit_impact": -371.49,
+        "pct_positive": 4.0,
+        "pct_negative": 59.7,
+        "pct_inconclusive": 36.3,
+        "counts": {
+          "net positive": 12,
+          "net negative": 179,
+          "inconclusive": 109
+        }
+      },
+      {
+        "discount_depth": 0.3,
+        "gross_margin": 0.2,
+        "median_net_profit_impact": -674.32,
+        "pct_positive": 0.0,
+        "pct_negative": 86.7,
+        "pct_inconclusive": 13.3,
+        "counts": {
+          "net positive": 0,
+          "net negative": 260,
+          "inconclusive": 40
+        }
+      },
+      {
+        "discount_depth": 0.3,
+        "gross_margin": 0.3,
+        "median_net_profit_impact": -647.65,
+        "pct_positive": 0.0,
+        "pct_negative": 81.7,
+        "pct_inconclusive": 18.3,
+        "counts": {
+          "net positive": 0,
+          "net negative": 245,
+          "inconclusive": 55
+        }
+      },
+      {
+        "discount_depth": 0.3,
+        "gross_margin": 0.4,
+        "median_net_profit_impact": -620.67,
+        "pct_positive": 1.3,
+        "pct_negative": 75.0,
+        "pct_inconclusive": 23.7,
+        "counts": {
+          "net positive": 4,
+          "net negative": 225,
+          "inconclusive": 71
+        }
+      }
+    ]
+  }
+}

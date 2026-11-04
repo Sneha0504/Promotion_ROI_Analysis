@@ -1,0 +1,451 @@
+{
+  "rule": "Flag a promotion as likely net-negative when its normalized early lift-per-day over the first 3 promo days is below the tuned threshold (early_signal < threshold).",
+  "signal_definition": "(mean daily (actual - chosen-method counterfactual) over the first early_days promo days) / pre-period mean daily sales.",
+  "label_definition": "1 = net negative; 0 = net positive OR inconclusive (inconclusive grouped with the non-negative class).",
+  "early_days": 3,
+  "tune_metric_config": "auto",
+  "tune_metric": "youden",
+  "deployable_metric": "youden",
+  "deployable_metric_reason": "auto: youden gives the largest pooled precision lift over the base rate (+0.078) at usable recall (0.867 >= 0.25).",
+  "beats_base_rate": true,
+  "verdict": "Under 5-fold CV the deployable rule (youden, threshold 0.3664) gives pooled out-of-fold precision 0.778 / recall 0.867 vs a 0.7 base rate -- a real precision lift over flagging everything.",
+  "threshold_grid_steps": 201,
+  "k_folds": 5,
+  "deployable_threshold": 0.3664,
+  "deployable_threshold_note": "One deployable threshold, tuned on ALL scored events with the chosen metric; the CV estimates its out-of-sample performance. Both metrics' CV are under cv_by_metric.",
+  "threshold": 0.3664,
+  "n_total_events": 300,
+  "n_scored": 300,
+  "n_unscored_no_signal": 0,
+  "n_inconclusive_grouped_as_label0": 82,
+  "cv": {
+    "metric": "youden",
+    "k": 5,
+    "fold_thresholds": [
+      0.2842,
+      0.3163,
+      0.3664,
+      0.3664,
+      0.271
+    ],
+    "median_fold_threshold": 0.3163,
+    "per_fold": [
+      {
+        "fold": 0,
+        "n": 60,
+        "threshold": 0.2842,
+        "precision": 0.75,
+        "recall": 0.857,
+        "f1": 0.8,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 36,
+          "fp": 12,
+          "fn": 6,
+          "tn": 6
+        }
+      },
+      {
+        "fold": 1,
+        "n": 60,
+        "threshold": 0.3163,
+        "precision": 0.809,
+        "recall": 0.905,
+        "f1": 0.854,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 38,
+          "fp": 9,
+          "fn": 4,
+          "tn": 9
+        }
+      },
+      {
+        "fold": 2,
+        "n": 60,
+        "threshold": 0.3664,
+        "precision": 0.804,
+        "recall": 0.881,
+        "f1": 0.841,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 37,
+          "fp": 9,
+          "fn": 5,
+          "tn": 9
+        }
+      },
+      {
+        "fold": 3,
+        "n": 60,
+        "threshold": 0.3664,
+        "precision": 0.712,
+        "recall": 0.881,
+        "f1": 0.787,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 37,
+          "fp": 15,
+          "fn": 5,
+          "tn": 3
+        }
+      },
+      {
+        "fold": 4,
+        "n": 60,
+        "threshold": 0.271,
+        "precision": 0.829,
+        "recall": 0.81,
+        "f1": 0.819,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 34,
+          "fp": 7,
+          "fn": 8,
+          "tn": 11
+        }
+      }
+    ],
+    "precision_mean": 0.781,
+    "precision_std": 0.043,
+    "recall_mean": 0.867,
+    "recall_std": 0.032,
+    "f1_mean": 0.82,
+    "f1_std": 0.025,
+    "pooled_out_of_fold": {
+      "n": 300,
+      "n_net_negative": 210,
+      "n_not_net_negative": 90,
+      "base_rate_net_negative": 0.7,
+      "confusion_matrix": {
+        "tp": 182,
+        "fp": 52,
+        "fn": 28,
+        "tn": 38
+      },
+      "precision": 0.778,
+      "recall": 0.867
+    },
+    "deployable_threshold": 0.3664
+  },
+  "cv_by_metric": {
+    "f1": {
+      "metric": "f1",
+      "k": 5,
+      "fold_thresholds": [
+        0.817,
+        0.8382,
+        0.8432,
+        0.6525,
+        0.8432
+      ],
+      "median_fold_threshold": 0.8382,
+      "per_fold": [
+        {
+          "fold": 0,
+          "n": 60,
+          "threshold": 0.817,
+          "precision": 0.719,
+          "recall": 0.976,
+          "f1": 0.828,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 41,
+            "fp": 16,
+            "fn": 1,
+            "tn": 2
+          }
+        },
+        {
+          "fold": 1,
+          "n": 60,
+          "threshold": 0.8382,
+          "precision": 0.719,
+          "recall": 0.976,
+          "f1": 0.828,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 41,
+            "fp": 16,
+            "fn": 1,
+            "tn": 2
+          }
+        },
+        {
+          "fold": 2,
+          "n": 60,
+          "threshold": 0.8432,
+          "precision": 0.737,
+          "recall": 1.0,
+          "f1": 0.848,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 42,
+            "fp": 15,
+            "fn": 0,
+            "tn": 3
+          }
+        },
+        {
+          "fold": 3,
+          "n": 60,
+          "threshold": 0.6525,
+          "precision": 0.707,
+          "recall": 0.976,
+          "f1": 0.82,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 41,
+            "fp": 17,
+            "fn": 1,
+            "tn": 1
+          }
+        },
+        {
+          "fold": 4,
+          "n": 60,
+          "threshold": 0.8432,
+          "precision": 0.778,
+          "recall": 1.0,
+          "f1": 0.875,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 42,
+            "fp": 12,
+            "fn": 0,
+            "tn": 6
+          }
+        }
+      ],
+      "precision_mean": 0.732,
+      "precision_std": 0.025,
+      "recall_mean": 0.986,
+      "recall_std": 0.012,
+      "f1_mean": 0.84,
+      "f1_std": 0.02,
+      "pooled_out_of_fold": {
+        "n": 300,
+        "n_net_negative": 210,
+        "n_not_net_negative": 90,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 207,
+          "fp": 76,
+          "fn": 3,
+          "tn": 14
+        },
+        "precision": 0.731,
+        "recall": 0.986
+      },
+      "deployable_threshold": 0.8432
+    },
+    "youden": {
+      "metric": "youden",
+      "k": 5,
+      "fold_thresholds": [
+        0.2842,
+        0.3163,
+        0.3664,
+        0.3664,
+        0.271
+      ],
+      "median_fold_threshold": 0.3163,
+      "per_fold": [
+        {
+          "fold": 0,
+          "n": 60,
+          "threshold": 0.2842,
+          "precision": 0.75,
+          "recall": 0.857,
+          "f1": 0.8,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 36,
+            "fp": 12,
+            "fn": 6,
+            "tn": 6
+          }
+        },
+        {
+          "fold": 1,
+          "n": 60,
+          "threshold": 0.3163,
+          "precision": 0.809,
+          "recall": 0.905,
+          "f1": 0.854,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 38,
+            "fp": 9,
+            "fn": 4,
+            "tn": 9
+          }
+        },
+        {
+          "fold": 2,
+          "n": 60,
+          "threshold": 0.3664,
+          "precision": 0.804,
+          "recall": 0.881,
+          "f1": 0.841,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 37,
+            "fp": 9,
+            "fn": 5,
+            "tn": 9
+          }
+        },
+        {
+          "fold": 3,
+          "n": 60,
+          "threshold": 0.3664,
+          "precision": 0.712,
+          "recall": 0.881,
+          "f1": 0.787,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 37,
+            "fp": 15,
+            "fn": 5,
+            "tn": 3
+          }
+        },
+        {
+          "fold": 4,
+          "n": 60,
+          "threshold": 0.271,
+          "precision": 0.829,
+          "recall": 0.81,
+          "f1": 0.819,
+          "base_rate_net_negative": 0.7,
+          "confusion_matrix": {
+            "tp": 34,
+            "fp": 7,
+            "fn": 8,
+            "tn": 11
+          }
+        }
+      ],
+      "precision_mean": 0.781,
+      "precision_std": 0.043,
+      "recall_mean": 0.867,
+      "recall_std": 0.032,
+      "f1_mean": 0.82,
+      "f1_std": 0.025,
+      "pooled_out_of_fold": {
+        "n": 300,
+        "n_net_negative": 210,
+        "n_not_net_negative": 90,
+        "base_rate_net_negative": 0.7,
+        "confusion_matrix": {
+          "tp": 182,
+          "fp": 52,
+          "fn": 28,
+          "tn": 38
+        },
+        "precision": 0.778,
+        "recall": 0.867
+      },
+      "deployable_threshold": 0.3664
+    }
+  },
+  "test": {
+    "n": 300,
+    "n_net_negative": 210,
+    "n_not_net_negative": 90,
+    "base_rate_net_negative": 0.7,
+    "confusion_matrix": {
+      "tp": 182,
+      "fp": 52,
+      "fn": 28,
+      "tn": 38
+    },
+    "precision": 0.778,
+    "recall": 0.867
+  },
+  "train": {
+    "n": 300,
+    "n_net_negative": 210,
+    "n_not_net_negative": 90,
+    "base_rate_net_negative": 0.7,
+    "confusion_matrix": {
+      "tp": 187,
+      "fp": 53,
+      "fn": 23,
+      "tn": 37
+    },
+    "precision": 0.779,
+    "recall": 0.89
+  },
+  "base_rate_comparison": "Pooled out-of-fold precision 0.778 vs the 0.7 base rate (+0.078); flagging EVERY promotion already yields precision 0.7 at recall 1.0. Under 5-fold CV the deployable rule (youden, threshold 0.3664) gives pooled out-of-fold precision 0.778 / recall 0.867 vs a 0.7 base rate -- a real precision lift over flagging everything.",
+  "disjoint_folds": true,
+  "folds_cover_all_scored": true,
+  "failure_cases_test": {
+    "false_positives": [
+      {
+        "event_id": "EVT00004",
+        "early_signal": -0.046,
+        "net_profit_impact": -370.284,
+        "classification": "inconclusive"
+      },
+      {
+        "event_id": "EVT00006",
+        "early_signal": -4.422,
+        "net_profit_impact": -5524.656,
+        "classification": "inconclusive"
+      },
+      {
+        "event_id": "EVT00009",
+        "early_signal": -4.013,
+        "net_profit_impact": -4772.46,
+        "classification": "inconclusive"
+      },
+      {
+        "event_id": "EVT00010",
+        "early_signal": 0.118,
+        "net_profit_impact": -840.011,
+        "classification": "inconclusive"
+      },
+      {
+        "event_id": "EVT00017",
+        "early_signal": -0.273,
+        "net_profit_impact": -4146.254,
+        "classification": "inconclusive"
+      }
+    ],
+    "false_negatives": [
+      {
+        "event_id": "EVT00003",
+        "early_signal": 0.321,
+        "net_profit_impact": -516.586,
+        "classification": "net negative"
+      },
+      {
+        "event_id": "EVT00005",
+        "early_signal": 0.809,
+        "net_profit_impact": -479.498,
+        "classification": "net negative"
+      },
+      {
+        "event_id": "EVT00041",
+        "early_signal": 0.461,
+        "net_profit_impact": -169.14,
+        "classification": "net negative"
+      },
+      {
+        "event_id": "EVT00042",
+        "early_signal": 1.146,
+        "net_profit_impact": -226.571,
+        "classification": "net negative"
+      },
+      {
+        "event_id": "EVT00055",
+        "early_signal": 0.634,
+        "net_profit_impact": -1135.569,
+        "classification": "net negative"
+      }
+    ]
+  },
+  "caveats": "Small, imbalanced sample; stratified K-fold CV reduces but does not eliminate the small-sample fragility (each held-out fold has ~60 events). Thresholds are tuned only on training folds; the labels rest on PERCENTILE bootstrap CIs."
+}

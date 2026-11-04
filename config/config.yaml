@@ -1,0 +1,163 @@
+# Promotion_ROI_Analysis — central configuration.
+# Every tunable lives here; no magic numbers or paths are hard-coded in the code.
+# All paths are relative to the project root so the pipeline is portable even though
+# the project path contains a space ("Coding Projects").
+
+paths:
+  data_raw: "data/raw"              # extracted Kaggle CSVs (git-ignored, re-downloadable)
+  data_processed: "data/processed"  # pipeline outputs (parquet/csv/json, committed to the repo)
+  data_interim: "data/interim"      # scratch space (bounded DuckDB spill dir; git-ignored)
+  sql: "sql"                        # directory holding the .sql query files
+  docs: "docs"                      # written reports
+  docs_site: "docs_site"            # published static dashboard (GitHub Pages root)
+
+# DuckDB execution bounds for the large (125M-row) scans. Kept here so nothing is
+# hard-coded: generous memory keeps work in RAM, while a project-local temp directory
+# with a hard size cap keeps any disk spill bounded and off the system temp volume.
+duckdb:
+  threads: 4
+  memory_limit: "6GB"                       # per-connection memory budget before spilling
+  temp_dir: "data/interim/.duckdb_tmp"      # project-local spill dir (created on demand, cleaned after)
+  max_temp_size: "4GB"                       # hard cap on on-disk spill (protects a small disk)
+
+# Raw file names inside paths.data_raw.
+files:
+  train: "train.csv"
+  items: "items.csv"
+  stores: "stores.csv"
+  oil: "oil.csv"
+  holidays: "holidays_events.csv"
+  transactions: "transactions.csv"
+
+# Analysis windows, in days, around each promotion event.
+windows:
+  pre_days: 90    # length of the pre-promotion period used to fit counterfactuals
+  post_days: 28   # length of the post-promotion period used for cannibalization
+
+# Promotion-event selection criteria (applied in src/load.py).
+selection:
+  min_promo_days: 3            # shortest run of promoted days that counts as an event
+  max_promo_days: 60          # longest run kept (excludes permanent / always-on flags)
+  min_pre_nonzero_frac: 0.5   # min fraction of pre-period days with non-zero sales
+  promo_flag_gap_tolerance: 1 # merge promo runs separated by gaps of <= this many days
+  require_store_open: true     # drop events whose windows include store-closure days
+  max_events: 300             # hard cap on analyzable promotions (keeps pipeline bounded)
+
+# Donor-pool criteria for synthetic control (consumed by src/build_panel.py).
+donors:
+  same_family: true    # donors must share the promoted item's product family
+  same_class: false    # optionally also require the same item class
+  same_store_first: true  # prefer donors from the same store before expanding out
+  expand_to_cluster: true # expand to same-cluster stores when same-store pool is short
+  max_donors: 30       # cap pool size for a well-posed synthetic-control fit
+  min_donors: 5        # drop an event if fewer than this many valid donors are found
+  min_donor_pre_corr: 0.0        # min pre-period correlation with the target (0 = off)
+  min_donor_pre_nonzero_frac: 0.3 # donor must sell on >= this frac of pre-period days
+
+# Interrupted time series (src/interrupted_ts.py).
+its:
+  log_transform: true     # fit on log1p(unit_sales); back-transform for effects
+  use_oil: false          # include the daily WTI oil price as an optional regressor
+  min_pre_r2: 0.20        # flag events whose pre-period OLS R^2 falls below this
+  max_pre_nrmse: 1.50     # flag events whose pre-period RMSE / mean(actual) exceeds this
+  ljung_box_lags: 14      # lag used for the Ljung-Box residual-autocorrelation test
+  bootstrap_draws: 1000   # residual-bootstrap replications for the effect CI
+  block_size: 7           # moving-block length (days) so the bootstrap respects weekly autocorrelation
+  cf_cap_multiple: 10     # plausibility guard: a projected daily counterfactual above this
+                          # multiple of the pre-period MAX daily sales is implausible (the
+                          # log-linear trend compounding exponentially out-of-sample); such
+                          # events are flagged (cf_implausible -> poor_fit) and the stored
+                          # counterfactual is capped at the ceiling so effects/display stay bounded
+  cf_cap_mean_multiple: 6 # second plausibility criterion: a projected daily counterfactual above
+                          # this multiple of the pre-period MEAN daily sales is also implausible (a
+                          # "no-promotion" baseline should sit near baseline, not balloon far above
+                          # it). 6 was chosen from the data: the legitimate good-fit events top out
+                          # at ~5.3x the pre-mean (and stay within the pre-period range), while the
+                          # milder trend-extrapolation artifacts (e.g. EVT00144 at ~25x) sit far
+                          # above, so 6 catches them without demoting any good-fit event. The
+                          # effective ceiling is min(cf_cap_multiple x max, cf_cap_mean_multiple x mean).
+
+# Synthetic control (src/synthetic_control.py).
+synth:
+  smooth_window: 7        # rolling-mean window (days) applied to the PRE-period before fitting
+                          # weights, so the control matches the trend/weekly signal rather than
+                          # idiosyncratic daily noise; effects are still summed on RAW daily sales
+  allow_intercept: true   # fit on PRE-period-demeaned series and add back the target's pre-mean,
+                          # i.e. a pre-period level fixed effect. High-volume targets exceed the
+                          # convex hull of their (mostly smaller) same-family donors, so a pure
+                          # sum-to-1 combination cannot match the level; weights stay non-negative
+                          # and sum to 1 and now capture co-movement. Set false for textbook SC.
+  max_pre_rmspe: 0.30     # flag events whose smoothed normalized pre-period RMSPE exceeds this
+  solver_max_iter: 500    # SLSQP iteration cap for the simplex-constrained weight fit
+  bootstrap_draws: 1000   # residual-bootstrap replications for the effect CI
+  block_size: 7           # moving-block length (days) for the residual bootstrap
+  placebo_pvalue_threshold: 0.10  # in-space placebo inference (Abadie): each donor is re-fit as a
+                          # pseudo-treated unit on the remaining donors; the real effect's
+                          # placebo p-value is the share of placebos whose |effect/pre-RMSPE| is at
+                          # least the real unit's. An event is flagged sc_low_credibility when its
+                          # promo-window placebo p-value exceeds this threshold (the "lift" is not
+                          # distinguishable from donor placebo noise).
+
+# Modeled economics. Favorita has NO price/margin columns, so these are labeled
+# assumptions, surfaced on the dashboard. Results read as margin-units at price 1.0.
+economics:
+  assumed_price: 1.0    # normalized unit price (results are in margin-units)
+  discount_depth: 0.20  # fractional price cut during the promotion (20%)
+  gross_margin: 0.30    # gross margin fraction on a unit at full price (30%)
+
+# Statistical reporting.
+significance:
+  ci_level: 0.95  # confidence-interval level for effect estimates
+
+# Cannibalization (src/cannibalization.py).
+cannibalization:
+  post_near_zero_units: 20  # if total post-window actual sales are <= this, the post "dip" may
+                            # be a delisting/stockout rather than pull-forward; flag post_near_zero
+
+# Promotion classification (src/net_impact.py). A promotion is "inconclusive" when the
+# net-effect confidence interval straddles zero; otherwise it is classified by the sign of
+# its net profit impact. The net CI is propagated from the CHOSEN method's promo + post
+# percentile CIs by summing their bounds (the conservative, widest-interval combination).
+classification:
+  inconclusive_basis: "net_profit"  # straddle-zero test target: "net_profit" or "net_units"
+
+# Sensitivity grid (src/net_impact.py): how the overall positive/negative/inconclusive split
+# and the median net profit move as the two MODELED economic assumptions vary. Every value is
+# a labeled assumption (Favorita has no price/margin data).
+sensitivity:
+  discount_depths: [0.10, 0.20, 0.30]  # fractional price cuts to sweep
+  gross_margins: [0.20, 0.30, 0.40]    # gross-margin fractions to sweep
+
+# Break-even economics (src/net_impact.py). Per event, the discount depth at which net profit
+# would be zero (margin held at its assumed value) and the margin needed at the current discount.
+# The two "alt" values below drive the summary counts ("how many net-negative promotions would
+# turn net positive at a shallower discount / a higher margin").
+break_even:
+  alt_discount_depth: 0.10  # shallower discount to test against each event's break-even discount
+  alt_gross_margin: 0.40    # higher margin to test against each event's break-even margin
+
+# Early-warning rule + backtest (src/early_warning.py).
+early_warning:
+  early_days: 3                # days into the promotion used to compute the early signal
+  train_fraction: 0.6          # share of events used to tune the threshold (seeded by random_seed)
+  test_fraction: 0.4           # disjoint held-out share used to evaluate it
+  tune_metric: "auto"          # threshold-tuning criterion for the DEPLOYABLE rule:
+                               #   "auto"   -> compute both and pick the more useful (a real
+                               #              precision lift over the base rate with usable recall),
+                               #   "f1"     -> force F1 (tends to flag almost everything here),
+                               #   "youden" -> force Youden's J (sensitivity + specificity - 1).
+                               # Both F1 and Youden CV results are ALWAYS reported either way.
+  min_precision_lift: 0.05     # "auto": min pooled precision over base rate to call the rule useful
+  recall_floor: 0.25           # "auto": min pooled recall for a metric to be eligible as deployable
+  threshold_grid_steps: 201    # candidate thresholds scanned across the TRAIN signal's observed range
+  k_folds: 5                   # stratified k-fold cross-validation folds (stratified on the
+                               # net-negative label, seeded); replaces the single train/test split
+                               # for honest small-sample evaluation. train_fraction/test_fraction
+                               # are retained only for the split helper used in unit tests.
+
+# Global determinism.
+random_seed: 20170815  # seed for every stochastic / tie-breaking step (data ends 2017-08-15)
+
+# Reliable-flag window. `onpromotion` is null in the early series; restrict analysis
+# to dates on/after this. Confirmed during profiling (see docs/data_quality_report.md).
+reliable_flag_start: "2014-04-01"

@@ -1,0 +1,38 @@
+# Raw and large intermediate data (too large for GitHub; regenerate locally)
+data/raw/
+*.7z
+*.zip
+
+# Large intermediate artifacts (regenerate locally). Small precomputed
+# per-promotion results live in data/processed/ and ARE committed.
+data/interim/
+*.parquet.bak
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Internal working note kept local only (not published)
+AI_USE.md
+
+# Environment / credentials
+.env
+*.kaggle.json
+kaggle.json
+
+# OS / editor / tool config (do not commit tool-specific config of any kind)
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+logs/
